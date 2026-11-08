@@ -3,12 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#0a0f1a">
+  <meta name="theme-color" content="#0b1f4a">
   <title>COLLECTIVE — Espace de gestion</title>
   <link rel="stylesheet" href="style.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
   <div class="app-shell">
@@ -17,55 +15,43 @@
         <div class="brand-mark">C</div>
         <div>
           <b>COLLECTIVE</b>
-          <small>GESTION & INVESTISSEMENT</small>
+          <small>Épargne & investissement</small>
         </div>
-      </div>
-      <div class="workspace">
-        <span class="avatar" id="wsAvatar">CG</span>
-        <div>
-          <b id="wsName">Collectif de gestion</b>
-          <small id="wsMode">Mode lecture</small>
-        </div>
-        <span class="lock-dot" id="lockDot" title="Verrouillé"></span>
       </div>
       <nav id="nav">
-        <button class="nav-item active" data-page="dashboard"><span>◫</span> Tableau de bord</button>
-        <button class="nav-item" data-page="members"><span>♙</span> Membres <em id="memberNavCount">0</em></button>
+        <button class="nav-item active" data-page="dashboard"><span>▣</span> Tableau de bord</button>
+        <button class="nav-item" data-page="members"><span>👤</span> Membres</button>
         <button class="nav-item" data-page="contributions"><span>↗</span> Cotisations</button>
-        <button class="nav-item" data-page="projects"><span>◇</span> Projets</button>
-        <button class="nav-item" data-page="finance"><span>▤</span> Répartition</button>
-        <button class="nav-item" data-page="transactions"><span>⇄</span> Trésorerie</button>
+        <button class="nav-item" data-page="tontine"><span>↻</span> Tontine (Redistribution)</button>
+        <button class="nav-item" data-page="projects"><span>📊</span> Investissements</button>
+        <button class="nav-item" data-page="transactions"><span>☰</span> Trésor</button>
+        <button class="nav-item" data-page="finance"><span>%</span> Frais de gestion</button>
         <button class="nav-item" data-page="payments"><span>◎</span> Paiements</button>
-        <button class="nav-item" data-page="reports"><span>▥</span> Rapports</button>
-        <button class="nav-item" data-page="governance"><span>⚖</span> Gouvernance</button>
+        <button class="nav-item" data-page="reports"><span>▤</span> Rapports</button>
         <button class="nav-item" data-page="settings"><span>⚙</span> Paramètres</button>
       </nav>
-      <div class="sidebar-bottom">
-        <a href="index.html" class="btn-unlock locked-state" style="display:block;text-align:center;text-decoration:none;margin-bottom:8px">← Accueil site</a>
-        <button class="btn-unlock" id="toggleLockBtn">Déverrouiller</button>
-        <div class="secure-line">
-          <span class="secure-icon">✓</span>
-          <div>
-            <b>Prototype sécurisé</b>
-            <small>Modifications protégées</small>
-          </div>
+      <div class="sidebar-foot">
+        <a href="index.html" class="side-link">← Accueil site</a>
+        <button class="side-btn" id="toggleLockBtn">Déverrouiller</button>
+        <div class="admin-chip">
+          <span class="av">A</span>
+          <div><b id="wsName">Admin</b><small id="wsMode">Lecture seule</small></div>
         </div>
       </div>
     </aside>
     <main class="main">
       <header class="topbar">
         <div>
-          <div class="eyebrow">ESPACE DE PILOTAGE / <span id="crumb">VUE D’ENSEMBLE</span></div>
           <h1 id="pageTitle">Tableau de bord</h1>
+          <p class="sub" id="pageSub">Voici un aperçu de l’activité de votre association.</p>
         </div>
         <div class="top-actions">
-          <span class="date-pill" id="today"></span>
-          <span class="mode-pill" id="modePill">Lecture seule</span>
-          <button class="btn btn-light" id="exportAll">⇩ Exporter</button>
+          <span class="pill" id="modePill">Lecture seule</span>
+          <span class="pill" id="today"></span>
+          <button class="btn btn-light" id="exportAll">Exporter</button>
         </div>
       </header>
       <div id="pageContent"></div>
-      <footer>COLLECTIVE • Espace premium — <span id="year"></span> · Les données restent sur cet appareil</footer>
     </main>
   </div>
   <div id="modalRoot"></div>
