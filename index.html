@@ -5,71 +5,190 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#0a0f1a">
   <title>COLLECTIVE — Gestion & Investissement</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="landing.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div class="app-shell">
-    <aside class="sidebar">
-      <div class="brand">
-        <div class="brand-mark">C</div>
-        <div>
-          <b>COLLECTIVE</b>
-          <small>GESTION & INVESTISSEMENT</small>
+  <header class="top">
+    <div class="brand">
+      <div class="mark">C</div>
+      <div>
+        <b>COLLECTIVE</b>
+        <small>GESTION & INVESTISSEMENT</small>
+      </div>
+    </div>
+    <nav class="top-nav">
+      <button type="button" data-go="0" class="active">Accueil</button>
+      <button type="button" data-go="1">Offres</button>
+      <button type="button" data-go="2">Paiements</button>
+      <a class="btn-enter" href="app.html">Ouvrir l’espace</a>
+    </nav>
+  </header>
+
+  <main class="slider" id="slider">
+    <section class="slide slide-1" id="slide-0">
+      <div class="slide-inner">
+        <p class="eyebrow">Espace collectif premium</p>
+        <h1>Pilotez vos cotisations,<br>projets et trésorerie<br><span>en toute clarté</span></h1>
+        <p class="lead">
+          COLLECTIVE est une plateforme de gestion pour collectifs, associations et groupes d’investissement.
+          Suivez les membres, enregistrez les cotisations, répartissez les fonds et affichez vos moyens de paiement
+          pour recevoir les contributions.
+        </p>
+        <div class="cta-row">
+          <a class="btn-primary" href="app.html">Entrer dans l’espace</a>
+          <button type="button" class="btn-ghost" data-go="1">Découvrir les offres</button>
+        </div>
+        <div class="stats-row">
+          <div><strong>Membres</strong><span>Suivi &amp; export</span></div>
+          <div><strong>Trésorerie</strong><span>Entrées / sorties</span></div>
+          <div><strong>Paiements</strong><span>MoMo · Airtel · Orange · Visa</span></div>
         </div>
       </div>
-      <div class="workspace">
-        <span class="avatar" id="wsAvatar">CG</span>
-        <div>
-          <b id="wsName">Collectif de gestion</b>
-          <small id="wsMode">Mode lecture</small>
-        </div>
-        <span class="lock-dot" id="lockDot" title="Verrouillé"></span>
-      </div>
-      <nav id="nav">
-        <button class="nav-item active" data-page="dashboard"><span>◫</span> Tableau de bord</button>
-        <button class="nav-item" data-page="members"><span>♙</span> Membres <em id="memberNavCount">0</em></button>
-        <button class="nav-item" data-page="contributions"><span>↗</span> Cotisations</button>
-        <button class="nav-item" data-page="projects"><span>◇</span> Projets</button>
-        <button class="nav-item" data-page="finance"><span>▤</span> Répartition</button>
-        <button class="nav-item" data-page="transactions"><span>⇄</span> Trésorerie</button>
-        <button class="nav-item" data-page="payments"><span>◎</span> Paiements</button>
-        <button class="nav-item" data-page="reports"><span>▥</span> Rapports</button>
-        <button class="nav-item" data-page="governance"><span>⚖</span> Gouvernance</button>
-        <button class="nav-item" data-page="settings"><span>⚙</span> Paramètres</button>
-      </nav>
-      <div class="sidebar-bottom">
-        <button class="btn-unlock" id="toggleLockBtn">Déverrouiller</button>
-        <div class="secure-line">
-          <span class="secure-icon">✓</span>
-          <div>
-            <b>Prototype sécurisé</b>
-            <small>Modifications protégées</small>
+      <div class="slide-visual">
+        <div class="glass-card">
+          <div class="gc-top">Vue d’ensemble</div>
+          <div class="gc-grid">
+            <div><small>Cotisations</small><b>1 275 000 XAF</b></div>
+            <div><small>Projets</small><b>2 actifs</b></div>
+            <div><small>Solde</small><b>250 000 XAF</b></div>
+            <div><small>Membres</small><b>24</b></div>
           </div>
         </div>
       </div>
-    </aside>
-    <main class="main">
-      <header class="topbar">
-        <div>
-          <div class="eyebrow">ESPACE DE PILOTAGE / <span id="crumb">VUE D’ENSEMBLE</span></div>
-          <h1 id="pageTitle">Tableau de bord</h1>
+    </section>
+
+    <section class="slide slide-2" id="slide-1">
+      <div class="slide-inner wide">
+        <p class="eyebrow">Ce que propose COLLECTIVE</p>
+        <h2>Tout pour piloter le collectif</h2>
+        <p class="lead short">
+          Un espace unique pour organiser la vie financière du groupe, sans installation complexe.
+        </p>
+        <div class="features">
+          <article>
+            <span class="ico">♙</span>
+            <h3>Membres &amp; cotisations</h3>
+            <p>Fiches membres, montants, statuts payé / en attente, export CSV.</p>
+          </article>
+          <article>
+            <span class="ico">◇</span>
+            <h3>Projets &amp; investissements</h3>
+            <p>Budgets, montants investis, niveau de risque et suivi d’avancement.</p>
+          </article>
+          <article>
+            <span class="ico">▤</span>
+            <h3>Répartition des fonds</h3>
+            <p>Enveloppes redistribution, investissement, trésorerie et frais — configurables.</p>
+          </article>
+          <article>
+            <span class="ico">⇄</span>
+            <h3>Journal de trésorerie</h3>
+            <p>Entrées et sorties claires pour garder le contrôle du solde.</p>
+          </article>
+          <article>
+            <span class="ico">◎</span>
+            <h3>Moyens de paiement</h3>
+            <p>Affichez vos numéros MoMo, Airtel Money, Orange Money et Visa pour recevoir les fonds.</p>
+          </article>
+          <article>
+            <span class="ico">⚙</span>
+            <h3>Accès protégé</h3>
+            <p>Les modifications (noms, montants, paiements) exigent le mot de passe administrateur.</p>
+          </article>
         </div>
-        <div class="top-actions">
-          <span class="date-pill" id="today"></span>
-          <span class="mode-pill" id="modePill">Lecture seule</span>
-          <button class="btn btn-light" id="exportAll">⇩ Exporter</button>
+        <div class="cta-row">
+          <button type="button" class="btn-primary" data-go="2">Voir les paiements</button>
+          <a class="btn-ghost" href="app.html">Ouvrir l’application</a>
         </div>
-      </header>
-      <div id="pageContent"></div>
-      <footer>COLLECTIVE • Espace premium — <span id="year"></span> · Les données restent sur cet appareil</footer>
-    </main>
+      </div>
+    </section>
+
+    <section class="slide slide-3" id="slide-2">
+      <div class="slide-inner wide">
+        <p class="eyebrow">Recevoir les fonds</p>
+        <h2>Modes de paiement</h2>
+        <p class="lead short">
+          Les membres peuvent vous envoyer leurs cotisations via les canaux que vous avez configurés dans l’espace.
+          Vous renseignez <strong>vos propres numéros</strong> (protégés par mot de passe).
+        </p>
+        <div class="pay-row">
+          <div class="pay">
+            <div class="pay-badge momo">MTN</div>
+            <h3>Mobile Money</h3>
+            <p>Recevez via MTN MoMo. Affichez votre numéro et le nom du titulaire.</p>
+          </div>
+          <div class="pay">
+            <div class="pay-badge airtel">ATL</div>
+            <h3>Airtel Money</h3>
+            <p>Idéal pour les membres sur le réseau Airtel.</p>
+          </div>
+          <div class="pay">
+            <div class="pay-badge orange">OM</div>
+            <h3>Orange Money</h3>
+            <p>Canal Orange Money pour encaisser rapidement.</p>
+          </div>
+          <div class="pay">
+            <div class="pay-badge visa">VISA</div>
+            <h3>Visa / Banque</h3>
+            <p>Compte, IBAN ou référence carte pour les virements.</p>
+          </div>
+        </div>
+        <div class="note">
+          <strong>Comment ça fonctionne ?</strong>
+          Ce n’est pas une passerelle de paiement automatique (pas de bouton « payer maintenant » relié à la banque).
+          Vous configurez vos coordonnées dans l’app ; les membres voient où envoyer l’argent, puis vous validez la cotisation dans COLLECTIVE.
+        </div>
+        <div class="cta-row">
+          <a class="btn-primary" href="app.html">Configurer mes numéros dans l’espace</a>
+          <button type="button" class="btn-ghost" data-go="0">Retour à l’accueil</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="dots" id="dots">
+    <button type="button" data-go="0" class="active" aria-label="Page 1"></button>
+    <button type="button" data-go="1" aria-label="Page 2"></button>
+    <button type="button" data-go="2" aria-label="Page 3"></button>
   </div>
-  <div id="modalRoot"></div>
-  <div class="toast" id="toast"></div>
-  <input id="importFile" type="file" accept="application/json" hidden>
-  <script src="app.js"></script>
+
+  <button class="nav-arrow prev" type="button" id="prev" aria-label="Précédent">‹</button>
+  <button class="nav-arrow next" type="button" id="next" aria-label="Suivant">›</button>
+
+  <script>
+    const slides = [...document.querySelectorAll('.slide')];
+    let i = 0;
+    function go(n) {
+      i = Math.max(0, Math.min(slides.length - 1, n));
+      document.getElementById('slider').style.transform = 'translateX(' + (-i * 100) + '%)';
+      document.querySelectorAll('[data-go]').forEach(el => {
+        if (el.matches('.top-nav button, .dots button')) {
+          el.classList.toggle('active', Number(el.dataset.go) === i);
+        }
+      });
+    }
+    document.querySelectorAll('[data-go]').forEach(el => {
+      el.addEventListener('click', () => go(Number(el.dataset.go)));
+    });
+    document.getElementById('prev').onclick = () => go(i - 1);
+    document.getElementById('next').onclick = () => go(i + 1);
+    let touchX = null;
+    const slider = document.getElementById('slider');
+    slider.addEventListener('touchstart', e => { touchX = e.changedTouches[0].screenX; }, { passive: true });
+    slider.addEventListener('touchend', e => {
+      if (touchX == null) return;
+      const dx = e.changedTouches[0].screenX - touchX;
+      if (dx > 50) go(i - 1);
+      if (dx < -50) go(i + 1);
+      touchX = null;
+    }, { passive: true });
+    window.addEventListener('keydown', e => {
+      if (e.key === 'ArrowRight') go(i + 1);
+      if (e.key === 'ArrowLeft') go(i - 1);
+    });
+  </script>
 </body>
 </html>
