@@ -3,15 +3,15 @@ const PASS_KEY='collective_v3_unlocked';
 const ADMIN_PASS='Azerty1234@idiot';
 
 const themes={
-  blue:{primary:'#1e4fd6',soft:'#e8efff',sidebar:'#0b1f4a',sidebar2:'#0e2a5c'},
-  green:{primary:'#0ca678',soft:'#e6fcf5',sidebar:'#0b3d2e',sidebar2:'#0f4c3a'},
-  purple:{primary:'#7048e8',soft:'#f3f0ff',sidebar:'#2b2142',sidebar2:'#3b2d5c'},
-  gold:{primary:'#c9a227',soft:'#fff9db',sidebar:'#3d2e0b',sidebar2:'#5c4512'},
-  red:{primary:'#e03131',soft:'#ffe3e3',sidebar:'#3b1212',sidebar2:'#5c1a1a'}
+  gold:{primary:'#c9a76a',soft:'rgba(201,167,106,.14)',sidebar:'#0d1524',sidebar2:'#090e18',text:'#8a6b2e'},
+  blue:{primary:'#3b6fd9',soft:'rgba(59,111,217,.12)',sidebar:'#0d1524',sidebar2:'#090e18',text:'#2c5282'},
+  green:{primary:'#2f9e7a',soft:'rgba(47,158,122,.12)',sidebar:'#0d1524',sidebar2:'#090e18',text:'#1f6b52'},
+  slate:{primary:'#64748b',soft:'rgba(100,116,139,.14)',sidebar:'#0d1524',sidebar2:'#090e18',text:'#475569'}
 };
+const bgThemes={ white:'#ffffff', soft:'#f7f5f0', cool:'#f4f7fc', warm:'#faf6ef', mist:'#f1f5f9' };
 
 const initial={
-  settings:{name:'Collectif de gestion',currency:'XAF',redistribution:55,investment:25,treasury:15,fees:5,monthlyGoal:2340000,theme:'blue',monthLabel:'Mai 2026'},
+  settings:{name:'Collectif de gestion',currency:'XAF',redistribution:55,investment:25,treasury:15,fees:5,monthlyGoal:2340000,theme:'gold',bg:'soft',monthLabel:'Mai 2026'},
   payments:{momo:{number:'',owner:''},airtel:{number:'',owner:''},orange:{number:'',owner:''},visa:{number:'',owner:'',bank:''}},
   members:[
     {id:'MB-001',name:'Mamadou Diallo',email:'mamadou@example.test',phone:'+242 06 000 01',joined:'2026-01-12',contribution:100000,status:'Actif',order:1},
@@ -53,6 +53,7 @@ function load(){
     const d=JSON.parse(raw);
     if(!d.payments) d.payments=structuredClone(initial.payments);
     if(!d.settings) d.settings=structuredClone(initial.settings);
+    if(!d.settings.bg) d.settings.bg='soft';
     if(!d.yields) d.yields=structuredClone(initial.yields);
     return d;
   }catch(e){return structuredClone(initial)}
@@ -67,12 +68,16 @@ function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');se
 function memberName(id){return state.members.find(m=>m.id===id)?.name||id}
 
 function applyTheme(){
-  const t=themes[state.settings.theme]||themes.blue;
+  const t=themes[state.settings.theme]||themes.gold;
   const r=document.documentElement.style;
   r.setProperty('--primary',t.primary);
   r.setProperty('--primary-soft',t.soft);
+  r.setProperty('--primary-text',t.text||t.primary);
   r.setProperty('--sidebar',t.sidebar);
   r.setProperty('--sidebar-2',t.sidebar2);
+  const bg=bgThemes[state.settings.bg]||bgThemes.soft;
+  r.setProperty('--bg',bg);
+  r.setProperty('--card','#ffffff');
 }
 
 function requireUnlock(label){
@@ -138,8 +143,7 @@ function totals(){
 
 function donutCSS(s){
   const a=s.redistribution,b=s.investment,c=s.treasury;
-  const p1=a+'%', p2=(a+b)+'%', p3=(a+b+c)+'%';
-  return `--p1:${p1};--p2:${p2};--p3:${p3}`;
+  return `--p1:${a}%;--p2:${a+b}%;--p3:${a+b+c}%`;
 }
 
 function setPage(page){
@@ -149,12 +153,12 @@ function setPage(page){
     members:['Membres','Gérez les membres du collectif.'],
     contributions:['Cotisations','Suivi des cotisations et statuts.'],
     tontine:['Tontine (Redistribution)','Ordre des bénéficiaires et redistribution.'],
-    projects:['Suivi des investissements & Rendements','Évolution des investissements et bénéfices.'],
+    projects:['Suivi des investissements et rendements','Évolution des investissements et bénéfices.'],
     transactions:['Trésor','Journal des mouvements de trésorerie.'],
     finance:['Frais de gestion','Répartition et frais configurables.'],
     payments:['Paiements','Vos coordonnées pour recevoir les fonds.'],
     reports:['Rapports','Synthèse et export.'],
-    settings:['Paramètres','Thème, devise, sécurité et données.']
+    settings:['Paramètres','Thème, fond, devise et sécurité.']
   };
   const t=titles[page]||['COLLECTIVE',''];
   $('#pageTitle').textContent=t[0];
@@ -170,12 +174,12 @@ function renderDashboard(root){
   const next=ordered[0];
   root.innerHTML=`
   <div class="stats">
-    <div class="card"><div class="stat"><div class="ico g">🏠</div><div><div class="stat-label">Total cotisations du mois</div><div class="stat-value">${fmt(t.monthTotal)}</div><div class="stat-sub">${state.members.length} membres</div></div></div></div>
-    <div class="card"><div class="stat"><div class="ico g">↻</div><div><div class="stat-label">Redistribution (${s.redistribution}%)</div><div class="stat-value">${fmt(t.red)}</div><div class="stat-sub">Versé au bénéficiaire</div></div></div></div>
-    <div class="card"><div class="stat"><div class="ico b">📊</div><div><div class="stat-label">Investissement (${s.investment}%)</div><div class="stat-value">${fmt(t.inv)}</div><div class="stat-sub">Fonds d’investissement</div></div></div></div>
-    <div class="card"><div class="stat"><div class="ico y">🏦</div><div><div class="stat-label">Trésor (${s.treasury}%)</div><div class="stat-value">${fmt(t.tre)}</div><div class="stat-sub">Fonds de réserve</div></div></div></div>
+    <div class="card"><div class="stat"><div class="ico g">CO</div><div><div class="stat-label">Total cotisations du mois</div><div class="stat-value">${fmt(t.monthTotal)}</div><div class="stat-sub">${state.members.length} membres</div></div></div></div>
+    <div class="card"><div class="stat"><div class="ico g">RD</div><div><div class="stat-label">Redistribution (${s.redistribution}%)</div><div class="stat-value">${fmt(t.red)}</div><div class="stat-sub">Versé au bénéficiaire</div></div></div></div>
+    <div class="card"><div class="stat"><div class="ico b">IN</div><div><div class="stat-label">Investissement (${s.investment}%)</div><div class="stat-value">${fmt(t.inv)}</div><div class="stat-sub">Fonds d’investissement</div></div></div></div>
+    <div class="card"><div class="stat"><div class="ico y">TR</div><div><div class="stat-label">Trésor (${s.treasury}%)</div><div class="stat-value">${fmt(t.tre)}</div><div class="stat-sub">Fonds de réserve</div></div></div></div>
   </div>
-  <div class="card" style="margin-bottom:14px"><div class="stat"><div class="ico p">⚙</div><div><div class="stat-label">Frais / gestion (${s.fees}%)</div><div class="stat-value" style="font-size:18px">${fmt(t.fees)}</div><div class="stat-sub">Frais de fonctionnement</div></div></div></div>
+  <div class="card" style="margin-bottom:12px"><div class="stat"><div class="ico p">FR</div><div><div class="stat-label">Frais / gestion (${s.fees}%)</div><div class="stat-value" style="font-size:18px">${fmt(t.fees)}</div><div class="stat-sub">Frais de fonctionnement</div></div></div></div>
   <div class="grid-3">
     <div class="card">
       <div class="section-title">Prochain bénéficiaire</div>
@@ -207,10 +211,10 @@ function renderDashboard(root){
     <div class="card">
       <div class="section-title">Informations clés</div>
       <div class="info-list">
-        <div class="row"><span>👥 Membres actifs</span><b>${state.members.filter(m=>m.status==='Actif').length}</b></div>
-        <div class="row"><span>✅ Cotisations à jour</span><b>${state.contributions.filter(c=>c.status==='Payé').length}/${state.contributions.length}</b></div>
-        <div class="row"><span>📊 Investissements actifs</span><b>${state.projects.filter(p=>p.status==='Actif').length}</b></div>
-        <div class="row"><span>🏦 Solde trésor actuel</span><b>${fmt(Math.max(0,t.bal))}</b></div>
+        <div class="row"><span>Membres actifs</span><b>${state.members.filter(m=>m.status==='Actif').length}</b></div>
+        <div class="row"><span>Cotisations à jour</span><b>${state.contributions.filter(c=>c.status==='Payé').length}/${state.contributions.length}</b></div>
+        <div class="row"><span>Investissements actifs</span><b>${state.projects.filter(p=>p.status==='Actif').length}</b></div>
+        <div class="row"><span>Solde trésor actuel</span><b>${fmt(Math.max(0,t.bal))}</b></div>
       </div>
     </div>
   </div>
@@ -282,7 +286,7 @@ function renderProjects(root){
   const catEntries=Object.entries(cats);
   const catTotal=catEntries.reduce((a,[,v])=>a+v,0)||1;
   let acc=0;
-  const catGrad=catEntries.map(([,v],i)=>{const colors=['#1e4fd6','#12b886','#fab005','#7048e8']; const start=acc; acc+=v/catTotal*100; return `${colors[i%colors.length]} ${start}% ${acc}%`}).join(',');
+  const catGrad=catEntries.map(([,v],i)=>{const colors=['#4775cf','#21866b','#c9a76a','#94a3b8']; const start=acc; acc+=v/catTotal*100; return `${colors[i%colors.length]} ${start}% ${acc}%`}).join(',');
 
   root.innerHTML=`
   <div class="stats">
@@ -312,7 +316,7 @@ function renderProjects(root){
       <div class="donut-wrap">
         <div class="donut" style="background:conic-gradient(${catGrad||'#ced4da 0 100%'})" data-center="${fmt(t.invested).replace(' '+state.settings.currency,'')}\nTotal investi"></div>
         <div class="legend">
-          ${catEntries.map(([k,v],i)=>{const colors=['#1e4fd6','#12b886','#fab005','#7048e8']; return `<div><span class="dot" style="background:${colors[i%colors.length]}"></span> ${k} ${Math.round(v/catTotal*100)}%</div>`}).join('')}
+          ${catEntries.map(([k,v],i)=>{const colors=['#4775cf','#21866b','#c9a76a','#94a3b8']; return `<div><span class="dot" style="background:${colors[i%colors.length]}"></span> ${k} ${Math.round(v/catTotal*100)}%</div>`}).join('')}
         </div>
       </div>
     </div>
@@ -329,7 +333,7 @@ function renderProjects(root){
             <td><span class="badge badge-ok">${p.status}</span></td></tr>`}).join('')}
       </tbody>
     </table></div>
-    <div style="margin-top:12px"><button class="btn btn-primary" id="addProj">+ Projet</button></div>
+    <div style="margin-top:12px"><button class="btn btn-primary" id="addProj">Ajouter un projet</button></div>
   </div>`;
   $('#addProj').onclick=()=>{
     if(!requireUnlock('ajouter un projet')) return;
@@ -349,8 +353,8 @@ function renderProjects(root){
 }
 
 function renderMembers(root){
-  root.innerHTML=`<div class="toolbar"><input class="search" id="q" placeholder="Rechercher..."><button class="btn btn-primary" id="addM">+ Membre</button></div>
-  <div class="card"><table><thead><tr><th>Nom</th><th>Contact</th><th>Cotisation</th><th>Ordre tontine</th><th>Statut</th><th></th></tr></thead><tbody id="rows"></tbody></table></div>`;
+  root.innerHTML=`<div class="toolbar"><input class="search" id="q" placeholder="Rechercher..."><button class="btn btn-primary" id="addM">Ajouter un membre</button></div>
+  <div class="card"><div class="table-wrap"><table><thead><tr><th>Nom</th><th>Contact</th><th>Cotisation</th><th>Ordre tontine</th><th>Statut</th><th></th></tr></thead><tbody id="rows"></tbody></table></div></div>`;
   const draw=()=>{const q=($('#q').value||'').toLowerCase();
     $('#rows').innerHTML=state.members.filter(m=>!q||m.name.toLowerCase().includes(q)).map(m=>`<tr>
       <td><b>${m.name}</b></td><td>${m.email||''}<br><span class="muted">${m.phone||''}</span></td>
@@ -380,10 +384,10 @@ function memberModal(m){
 }
 
 function renderContributions(root){
-  root.innerHTML=`<div class="toolbar"><button class="btn btn-primary" id="addC">+ Cotisation</button></div>
-  <div class="card"><table><thead><tr><th>Réf</th><th>Membre</th><th>Montant</th><th>Date</th><th>Statut</th></tr></thead>
+  root.innerHTML=`<div class="toolbar"><button class="btn btn-primary" id="addC">Ajouter une cotisation</button></div>
+  <div class="card"><div class="table-wrap"><table><thead><tr><th>Réf</th><th>Membre</th><th>Montant</th><th>Date</th><th>Statut</th></tr></thead>
   <tbody>${state.contributions.map(c=>`<tr><td>${c.ref||c.id}</td><td>${memberName(c.memberId)}</td><td>${fmt(c.amount)}</td><td>${c.date}</td>
-    <td><span class="badge ${c.status==='Payé'?'badge-ok':'badge-warn'}">${c.status}</span></td></tr>`).join('')}</tbody></table></div>`;
+    <td><span class="badge ${c.status==='Payé'?'badge-ok':'badge-warn'}">${c.status}</span></td></tr>`).join('')}</tbody></table></div></div>`;
   $('#addC').onclick=()=>{if(!requireUnlock('ajouter une cotisation')) return;
     openModal(`<h3>Cotisation</h3><div class="form-grid">
       <div class="field"><label>Membre</label><select id="cM">${state.members.map(m=>`<option value="${m.id}">${m.name}</option>`).join('')}</select></div>
@@ -398,10 +402,10 @@ function renderContributions(root){
 }
 
 function renderTransactions(root){
-  root.innerHTML=`<div class="toolbar"><button class="btn btn-primary" id="addT">+ Mouvement</button></div>
-  <div class="card"><table><thead><tr><th>Date</th><th>Type</th><th>Libellé</th><th>Montant</th></tr></thead>
+  root.innerHTML=`<div class="toolbar"><button class="btn btn-primary" id="addT">Ajouter un mouvement</button></div>
+  <div class="card"><div class="table-wrap"><table><thead><tr><th>Date</th><th>Type</th><th>Libellé</th><th>Montant</th></tr></thead>
   <tbody>${state.transactions.map(t=>`<tr><td>${t.date}</td><td>${t.type}</td><td>${t.label}</td>
-    <td class="${t.type==='Entrée'?'pos':'neg'}">${t.type==='Entrée'?'+':'-'}${fmt(t.amount)}</td></tr>`).join('')}</tbody></table></div>`;
+    <td class="${t.type==='Entrée'?'pos':'neg'}">${t.type==='Entrée'?'+':'-'}${fmt(t.amount)}</td></tr>`).join('')}</tbody></table></div></div>`;
   $('#addT').onclick=()=>{if(!requireUnlock('ajouter un mouvement')) return;
     openModal(`<h3>Mouvement</h3><div class="form-grid">
       <div class="field"><label>Type</label><select id="tT"><option>Entrée</option><option>Sortie</option></select></div>
@@ -418,7 +422,7 @@ function renderTransactions(root){
 
 function renderFinance(root){
   const s=state.settings; const t=totals();
-  root.innerHTML=`<div class="notice">Somme des % doit rester à 100 % (actuellement ${s.redistribution+s.investment+s.treasury+s.fees} %).</div>
+  root.innerHTML=`<div class="notice">Somme des pourcentages doit rester à 100 % (actuellement ${s.redistribution+s.investment+s.treasury+s.fees} %).</div>
   <div class="grid-2">
     <div class="card"><div class="section-title">Répartition</div>
       <div class="donut-wrap">
@@ -430,7 +434,7 @@ function renderFinance(root){
           <div><span class="dot gr"></span> Frais ${s.fees}% — ${fmt(t.fees)}</div>
         </div>
       </div>
-      <div style="margin-top:14px"><button class="btn btn-primary" id="editPct">Modifier les %</button></div>
+      <div style="margin-top:14px"><button class="btn btn-primary" id="editPct">Modifier les pourcentages</button></div>
     </div>
     <div class="card"><div class="section-title">Objectif mensuel</div>
       <div class="stat-value" style="margin:12px 0">${fmt(s.monthlyGoal)}</div>
@@ -455,7 +459,7 @@ function renderFinance(root){
 function renderPayments(root){
   const p=state.payments;
   const card=(title,num,own)=>`<div class="pay-card"><h3>${title}</h3><div class="num">${num||'Non renseigné'}</div><div class="owner">${own||'Titulaire non défini'}</div></div>`;
-  root.innerHTML=`<div class="notice">Affichez vos numéros pour recevoir les cotisations (pas de paiement auto en ligne).</div>
+  root.innerHTML=`<div class="notice">Affichez vos numéros pour recevoir les cotisations (pas de paiement automatique en ligne).</div>
   <div class="toolbar"><button class="btn btn-primary" id="editPay">Configurer mes moyens de paiement</button></div>
   <div class="pay-grid">
     ${card('Mobile Money (MTN)',p.momo?.number,p.momo?.owner)}
@@ -496,12 +500,18 @@ function renderReports(root){
 
 function renderSettings(root){
   const s=state.settings;
-  root.innerHTML=`<div class="card" style="margin-bottom:14px">
-    <div class="section-title">Couleur du thème</div>
+  root.innerHTML=`
+  <div class="card" style="margin-bottom:14px">
+    <div class="section-title">Couleur d'accent</div>
     <div class="themes" id="themes">
       ${Object.keys(themes).map(k=>`<button type="button" class="theme-swatch ${s.theme===k?'active':''}" data-theme="${k}" style="background:${themes[k].primary}" title="${k}"></button>`).join('')}
     </div>
-    <p class="muted" style="margin-top:10px">Cliquez pour changer sidebar + boutons.</p>
+    <p class="muted" style="margin-top:10px">Une seule teinte pour boutons, badges et graphiques.</p>
+    <div class="section-title" style="margin-top:18px">Fond de page</div>
+    <div class="bg-themes" id="bgThemes">
+      ${Object.entries(bgThemes).map(([k,v])=>`<button type="button" class="bg-swatch ${(s.bg||'soft')===k?'active':''}" data-bg="${k}" style="background:${v}" title="${k}"></button>`).join('')}
+    </div>
+    <p class="muted" style="margin-top:10px">Blanc, ivoire, froid, chaud ou gris léger.</p>
   </div>
   <div class="card">
     <div class="form-grid">
@@ -516,6 +526,7 @@ function renderSettings(root){
     </div>
   </div>`;
   $$('#themes [data-theme]').forEach(b=>{b.onclick=()=>{if(!requireUnlock('changer le thème')) return; state.settings.theme=b.dataset.theme; applyTheme(); save('Thème appliqué'); setPage('settings')}});
+  $$('#bgThemes [data-bg]').forEach(b=>{b.onclick=()=>{if(!requireUnlock('changer le fond')) return; state.settings.bg=b.dataset.bg; applyTheme(); save('Fond appliqué'); setPage('settings')}});
   $('#saveS').onclick=()=>{if(!requireUnlock('modifier les paramètres')) return; state.settings.name=$('#sName').value.trim()||state.settings.name; state.settings.currency=$('#sCur').value.trim()||'XAF'; save('Paramètres enregistrés'); updateLockUI(); setPage('settings')};
   $('#exp').onclick=()=>{const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='collective-backup.json';a.click()};
   $('#imp').onclick=()=>{if(!requireUnlock('importer'))return;$('#importFile').click()};
@@ -533,7 +544,7 @@ function render(){
 }
 
 $('#exportAll').onclick=()=>{const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='collective-backup.json';a.click();toast('Export prêt')};
-$('#importFile').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{state=JSON.parse(r.result);if(!state.payments)state.payments=structuredClone(initial.payments);save('Import OK');setPage('dashboard')}catch(err){toast('Fichier invalide')}};r.readAsText(f);e.target.value=''};
+$('#importFile').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{state=JSON.parse(r.result);if(!state.payments)state.payments=structuredClone(initial.payments);if(!state.settings)state.settings=structuredClone(initial.settings);save('Import OK');setPage('dashboard')}catch(err){toast('Fichier invalide')}};r.readAsText(f);e.target.value=''};
 $('#toggleLockBtn').onclick=()=>{if(unlocked){setUnlock(false);toast('Verrouillé')}else openPasswordModal('déverrouiller')};
 $('#nav').addEventListener('click',e=>{const b=e.target.closest('[data-page]');if(b) setPage(b.dataset.page)});
 render();
