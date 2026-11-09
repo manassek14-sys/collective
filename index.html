@@ -23,7 +23,7 @@
       <button type="button" data-go="0" class="active">Accueil</button>
       <button type="button" data-go="1">Offres</button>
       <button type="button" data-go="2">Paiements</button>
-      <a class="btn-enter" href="app.html">Ouvrir l’espace</a>
+      <a class="btn-enter" href="hub.html">Voir mes collectifs</a>
     </nav>
   </header>
 
@@ -38,11 +38,11 @@
           pour recevoir les contributions.
         </p>
         <div class="cta-row">
-          <a class="btn-primary" href="app.html">Entrer dans l’espace</a>
+          <a class="btn-primary" href="hub.html">Choisir un collectif</a>
           <button type="button" class="btn-ghost" data-go="1">Découvrir les offres</button>
         </div>
         <div class="stats-row">
-          <div><strong>Membres</strong><span>Suivi &amp; export</span></div>
+          <div><strong>Membres</strong><span>Suivi & export</span></div>
           <div><strong>Trésorerie</strong><span>Entrées / sorties</span></div>
           <div><strong>Paiements</strong><span>MoMo · Airtel · Orange · Visa</span></div>
         </div>
@@ -69,39 +69,39 @@
         </p>
         <div class="features">
           <article>
-            <span class="ico">♙</span>
-            <h3>Membres &amp; cotisations</h3>
+            <span class="ico">MB</span>
+            <h3>Membres & cotisations</h3>
             <p>Fiches membres, montants, statuts payé / en attente, export CSV.</p>
           </article>
           <article>
-            <span class="ico">◇</span>
-            <h3>Projets &amp; investissements</h3>
+            <span class="ico">IV</span>
+            <h3>Projets & investissements</h3>
             <p>Budgets, montants investis, niveau de risque et suivi d’avancement.</p>
           </article>
           <article>
-            <span class="ico">▤</span>
+            <span class="ico">RP</span>
             <h3>Répartition des fonds</h3>
             <p>Enveloppes redistribution, investissement, trésorerie et frais — configurables.</p>
           </article>
           <article>
-            <span class="ico">⇄</span>
+            <span class="ico">TR</span>
             <h3>Journal de trésorerie</h3>
             <p>Entrées et sorties claires pour garder le contrôle du solde.</p>
           </article>
           <article>
-            <span class="ico">◎</span>
+            <span class="ico">PY</span>
             <h3>Moyens de paiement</h3>
             <p>Affichez vos numéros MoMo, Airtel Money, Orange Money et Visa pour recevoir les fonds.</p>
           </article>
           <article>
-            <span class="ico">⚙</span>
+            <span class="ico">PR</span>
             <h3>Accès protégé</h3>
             <p>Les modifications (noms, montants, paiements) exigent le mot de passe administrateur.</p>
           </article>
         </div>
         <div class="cta-row">
           <button type="button" class="btn-primary" data-go="2">Voir les paiements</button>
-          <a class="btn-ghost" href="app.html">Ouvrir l’application</a>
+          <a class="btn-ghost" href="hub.html">Voir mes collectifs</a>
         </div>
       </div>
     </section>
@@ -138,11 +138,11 @@
         </div>
         <div class="note">
           <strong>Comment ça fonctionne ?</strong>
-          Ce n’est pas une passerelle de paiement automatique (pas de bouton « payer maintenant » relié à la banque).
+          Ce n’est pas une passerelle de paiement automatique.
           Vous configurez vos coordonnées dans l’app ; les membres voient où envoyer l’argent, puis vous validez la cotisation dans COLLECTIVE.
         </div>
         <div class="cta-row">
-          <a class="btn-primary" href="app.html">Configurer mes numéros dans l’espace</a>
+          <a class="btn-primary" href="hub.html">Choisir un collectif</a>
           <button type="button" class="btn-ghost" data-go="0">Retour à l’accueil</button>
         </div>
       </div>
@@ -163,7 +163,7 @@
     let i = 0;
     function go(n) {
       i = Math.max(0, Math.min(slides.length - 1, n));
-      document.getElementById('slider').style.transform = 'translateX(' + (-i * 100) + '%)';
+      document.getElementById('slider').style.transform = 'translateX(' + (-i * 100) + '%);';
       document.querySelectorAll('[data-go]').forEach(el => {
         if (el.matches('.top-nav button, .dots button')) {
           el.classList.toggle('active', Number(el.dataset.go) === i);
