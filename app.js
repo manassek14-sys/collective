@@ -1,6 +1,17 @@
-const KEY='collective_v3_data';
-const PASS_KEY='collective_v3_unlocked';
+const params=new URLSearchParams(location.search);
+const COL_ID=params.get('id')||'col-001';
+const KEY='collective_v3_data_'+COL_ID;
+const PASS_KEY='collective_v3_unlocked_'+COL_ID;
 const ADMIN_PASS='Azerty1234@idiot';
+const HUB_KEY='collective_hub_v1';
+
+function hubName(){
+  try{
+    const h=JSON.parse(localStorage.getItem(HUB_KEY)||'{}');
+    const c=(h.collectives||[]).find(x=>x.id===COL_ID);
+    return c?c.name:null;
+  }catch(e){return null}
+}
 
 const themes={
   gold:{primary:'#d9b66f',soft:'rgba(217,182,111,.16)',sidebar:'#0b1221',sidebar2:'#0a1020',text:'#e8d5a8'},
@@ -10,16 +21,12 @@ const themes={
   coral:{primary:'#ffa8a8',soft:'rgba(255,168,168,.14)',sidebar:'#0b1221',sidebar2:'#0a1020',text:'#ffc9c9'}
 };
 const bgThemes={
-  kalla:'#0a1020',
-  midnight:'#060a14',
-  charcoal:'#0f1419',
-  deepnavy:'#0a1628',
-  ink:'#050508',
-  softlight:'#f4f6fc'
+  kalla:'#0a1020', midnight:'#060a14', charcoal:'#0f1419',
+  deepnavy:'#0a1628', ink:'#050508', softlight:'#f4f6fc'
 };
 
 const initial={
-  settings:{name:'Collectif de gestion',currency:'XAF',redistribution:55,investment:25,treasury:15,fees:5,monthlyGoal:2340000,theme:'gold',bg:'kalla',monthLabel:'Mai 2026'},
+  settings:{name:hubName()||'Collectif de gestion',currency:'XAF',redistribution:55,investment:25,treasury:15,fees:5,monthlyGoal:2340000,theme:'gold',bg:'kalla',monthLabel:'Mai 2026'},
   payments:{momo:{number:'',owner:''},airtel:{number:'',owner:''},orange:{number:'',owner:''},visa:{number:'',owner:'',bank:''}},
   members:[
     {id:'MB-001',name:'Mamadou Diallo',email:'mamadou@example.test',phone:'+242 06 000 01',joined:'2026-01-12',contribution:100000,status:'Actif',order:1},
@@ -63,6 +70,8 @@ function load(){
     if(!d.settings) d.settings=structuredClone(initial.settings);
     if(!d.settings.bg) d.settings.bg='kalla';
     if(!d.yields) d.yields=structuredClone(initial.yields);
+    const hn=hubName();
+    if(hn) d.settings.name=hn;
     return d;
   }catch(e){return structuredClone(initial)}
 }
@@ -91,9 +100,7 @@ function applyTheme(){
   r.setProperty('--text', light ? '#172338' : '#f4f6fc');
   r.setProperty('--muted', light ? '#6b7a99' : '#9fadc3');
   r.setProperty('--line', light ? '#e6ebf5' : '#2a3a55');
-  document.body.style.background = light
-    ? bg
-    : 'radial-gradient(ellipse at top right,#182743 0,transparent 42%),'+bg;
+  document.body.style.background = light ? bg : 'radial-gradient(ellipse at top right,#182743 0,transparent 42%),'+bg;
 }
 
 function requireUnlock(label){
@@ -112,15 +119,11 @@ function updateLockUI(){
   const mode=$('#wsMode');
   const pill=$('#modePill');
   if(unlocked){
-    btn.textContent='Verrouiller';
-    mode.textContent='Mode édition';
-    pill.textContent='Édition active';
-    pill.classList.add('edit');
+    btn.textContent='Verrouiller'; mode.textContent='Mode édition';
+    pill.textContent='Édition active'; pill.classList.add('edit');
   }else{
-    btn.textContent='Déverrouiller';
-    mode.textContent='Lecture seule';
-    pill.textContent='Lecture seule';
-    pill.classList.remove('edit');
+    btn.textContent='Déverrouiller'; mode.textContent='Lecture seule';
+    pill.textContent='Lecture seule'; pill.classList.remove('edit');
   }
   $('#wsName').textContent=state.settings.name||'Admin';
 }
@@ -164,16 +167,16 @@ function donutCSS(s){
 function setPage(page){
   $$('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.page===page));
   const titles={
-    dashboard:['Tableau de bord','Voici un aperçu de l’activité de votre association.'],
-    members:['Membres','Gérez les membres du collectif.'],
-    contributions:['Cotisations','Suivi des cotisations et statuts.'],
-    tontine:['Tontine (Redistribution)','Ordre des bénéficiaires et redistribution.'],
-    projects:['Suivi des investissements et rendements','Évolution des investissements et bénéfices.'],
-    transactions:['Trésor','Journal des mouvements de trésorerie.'],
-    finance:['Frais de gestion','Répartition et frais configurables.'],
-    payments:['Paiements','Vos coordonnées pour recevoir les fonds.'],
-    reports:['Rapports','Synthèse et export.'],
-    settings:['Paramètres','Thème, fond, devise et sécurité.']
+    dashboard:['Tableau de bord','Espace : '+(state.settings.name||'Collectif')],
+    members:['Membres','Gérez les membres de ce collectif uniquement.'],
+    contributions:['Cotisations','Cotisations de ce collectif.'],
+    tontine:['Tontine (Redistribution)','Ordre des bénéficiaires de ce collectif.'],
+    projects:['Investissements','Projets de ce collectif uniquement.'],
+    transactions:['Trésor','Mouvements de ce collectif.'],
+    finance:['Frais de gestion','Répartition de ce collectif.'],
+    payments:['Paiements','Coordonnées de ce collectif.'],
+    reports:['Rapports','Synthèse de ce collectif.'],
+    settings:['Paramètres','Thème et sécurité de cet espace.']
   };
   const t=titles[page]||['COLLECTIVE',''];
   $('#pageTitle').textContent=t[0];
@@ -200,15 +203,12 @@ function renderDashboard(root){
       <div class="section-title">Prochain bénéficiaire</div>
       <div class="beneficiary">
         <div class="avatar-lg">${(next?.name||'?').split(' ').map(x=>x[0]).slice(0,2).join('')}</div>
-        <div>
-          <b>${next?.name||'—'}</b>
-          <div class="muted">Recevra : <b>${fmt(t.red)}</b></div>
-          <span class="badge badge-info">Bénéficiaire suivant</span>
-        </div>
+        <div><b>${next?.name||'—'}</b><div class="muted">Recevra : <b>${fmt(t.red)}</b></div>
+          <span class="badge badge-info">Bénéficiaire suivant</span></div>
       </div>
       <div class="section-title">Ordre des bénéficiaires</div>
       <ul class="order-list">
-        ${ordered.slice(0,4).map((m,i)=>`<li><span><span class="n">${i+1}</span>${m.name}</span><span class="muted">${['Juin','Juil.','Août','Sept.'][i]||''} 2026</span></li>`).join('')}
+        ${ordered.slice(0,4).map((m,i)=>`<li><span><span class="n">${i+1}</span>${m.name}</span><span class="muted">${['Juin','Juil.','Août','Sept.'][i]||''}</span></li>`).join('')}
       </ul>
     </div>
     <div class="card">
@@ -241,8 +241,7 @@ function renderDashboard(root){
         ${state.transactions.slice().reverse().map(tx=>`<tr>
           <td>${tx.date}</td><td>${tx.category||tx.type}</td><td>${tx.label}</td>
           <td class="${tx.type==='Entrée'?'pos':'neg'}">${tx.type==='Entrée'?'+':'-'}${fmt(tx.amount)}</td>
-          <td><span class="badge badge-ok">Validée</span></td>
-        </tr>`).join('')}
+          <td><span class="badge badge-ok">Validée</span></td></tr>`).join('')}
       </tbody>
     </table></div>
   </div>`;
@@ -251,21 +250,16 @@ function renderDashboard(root){
 function renderTontine(root){
   const t=totals();
   const ordered=[...state.members].sort((a,b)=>(a.order||99)-(b.order||99));
-  root.innerHTML=`
-  <div class="notice">La tontine reverse la part Redistribution au prochain bénéficiaire dans l’ordre défini.</div>
+  root.innerHTML=`<div class="notice">Tontine de ce collectif uniquement — pas de mélange avec les autres.</div>
   <div class="grid-2">
-    <div class="card">
-      <div class="section-title">Ordre des bénéficiaires</div>
+    <div class="card"><div class="section-title">Ordre des bénéficiaires</div>
       <ul class="order-list">
-        ${ordered.map((m,i)=>`<li>
-          <span><span class="n">${i+1}</span><b>${m.name}</b></span>
-          <span>${i===0?`<span class="badge badge-info">Prochain · ${fmt(t.red)}</span>`:`<span class="muted">Position ${i+1}</span>`}</span>
-        </li>`).join('')}
+        ${ordered.map((m,i)=>`<li><span><span class="n">${i+1}</span><b>${m.name}</b></span>
+          <span>${i===0?`<span class="badge badge-info">Prochain · ${fmt(t.red)}</span>`:`<span class="muted">Position ${i+1}</span>`}</span></li>`).join('')}
       </ul>
       <div style="margin-top:12px"><button class="btn btn-primary" id="editOrder">Modifier l’ordre</button></div>
     </div>
-    <div class="card">
-      <div class="section-title">Répartition du mois</div>
+    <div class="card"><div class="section-title">Répartition du mois</div>
       <div class="donut-wrap">
         <div class="donut" style="${donutCSS(state.settings)}" data-center="${state.settings.redistribution}%\nTontine"></div>
         <div class="legend">
@@ -277,18 +271,12 @@ function renderTontine(root){
       </div>
     </div>
   </div>`;
-  $('#editOrder').onclick=()=>{
-    if(!requireUnlock('modifier l’ordre tontine')) return;
-    openModal(`<h3>Ordre des bénéficiaires</h3>
-      <p class="muted">Indiquez le rang (1 = prochain bénéficiaire).</p>
-      <div class="form-grid">
-        ${ordered.map(m=>`<div class="field"><label>${m.name}</label><input type="number" min="1" data-oid="${m.id}" value="${m.order||1}"></div>`).join('')}
-      </div>
-      <div class="modal-actions"><button class="btn btn-light" data-close>Annuler</button><button class="btn btn-primary" id="saveOrd">Enregistrer</button></div>`,()=>{
-      $('#saveOrd').onclick=()=>{
-        $$('[data-oid]').forEach(inp=>{const m=state.members.find(x=>x.id===inp.dataset.oid); if(m) m.order=Number(inp.value)||99});
-        save('Ordre tontine mis à jour'); closeModal(); setPage('tontine');
-      };
+  $('#editOrder').onclick=()=>{if(!requireUnlock('modifier l’ordre')) return;
+    openModal(`<h3>Ordre des bénéficiaires</h3><div class="form-grid">
+      ${ordered.map(m=>`<div class="field"><label>${m.name}</label><input type="number" min="1" data-oid="${m.id}" value="${m.order||1}"></div>`).join('')}
+    </div><div class="modal-actions"><button class="btn btn-light" data-close>Annuler</button><button class="btn btn-primary" id="saveOrd">Enregistrer</button></div>`,()=>{
+      $('#saveOrd').onclick=()=>{$$('[data-oid]').forEach(inp=>{const m=state.members.find(x=>x.id===inp.dataset.oid); if(m) m.order=Number(inp.value)||99});
+        save('Ordre mis à jour'); closeModal(); setPage('tontine')};
     });
   };
 }
@@ -296,77 +284,55 @@ function renderTontine(root){
 function renderProjects(root){
   const t=totals();
   const maxCap=Math.max(...state.yields.map(y=>y.cap),1);
-  const cats={};
-  state.projects.forEach(p=>{cats[p.category]=(cats[p.category]||0)+(p.invested||0)});
+  const cats={}; state.projects.forEach(p=>{cats[p.category]=(cats[p.category]||0)+(p.invested||0)});
   const catEntries=Object.entries(cats);
   const catTotal=catEntries.reduce((a,[,v])=>a+v,0)||1;
   let acc=0;
   const catGrad=catEntries.map(([,v],i)=>{const colors=['#6ea8fe','#79ddb0','#d9b66f','#6b7c99']; const start=acc; acc+=v/catTotal*100; return `${colors[i%colors.length]} ${start}% ${acc}%`}).join(',');
   root.innerHTML=`
   <div class="stats">
-    <div class="card"><div class="stat-label">Capital investi total</div><div class="stat-value">${fmt(t.invested)}</div><div class="stat-sub">Depuis le début</div></div>
-    <div class="card"><div class="stat-label">Valeur actuelle</div><div class="stat-value">${fmt(t.value)}</div><div class="stat-sub pos">+${t.invested?((t.benefit/t.invested)*100).toFixed(1):0}%</div></div>
-    <div class="card"><div class="stat-label">Bénéfices réalisés</div><div class="stat-value">${fmt(t.benefit)}</div><div class="stat-sub">Total net</div></div>
-    <div class="card"><div class="stat-label">Rendement moyen</div><div class="stat-value">${t.invested?((t.benefit/t.invested)*100).toFixed(1):0}%</div><div class="stat-sub">Sur le capital</div></div>
+    <div class="card"><div class="stat-label">Capital investi</div><div class="stat-value">${fmt(t.invested)}</div></div>
+    <div class="card"><div class="stat-label">Valeur actuelle</div><div class="stat-value">${fmt(t.value)}</div></div>
+    <div class="card"><div class="stat-label">Bénéfices</div><div class="stat-value">${fmt(t.benefit)}</div></div>
+    <div class="card"><div class="stat-label">Rendement</div><div class="stat-value">${t.invested?((t.benefit/t.invested)*100).toFixed(1):0}%</div></div>
   </div>
   <div class="grid-2">
-    <div class="card">
-      <div class="section-title">Évolution des rendements</div>
-      <div class="chart-box">
-        <svg class="line-chart" viewBox="0 0 600 200" preserveAspectRatio="none">
-          <polyline fill="none" stroke="var(--primary)" stroke-width="3" points="${state.yields.map((y,i)=>`${i*(600/Math.max(state.yields.length-1,1))},${200-(y.cap/maxCap)*170}`).join(' ')}"/>
-          <polyline fill="none" stroke="var(--ok)" stroke-width="3" points="${state.yields.map((y,i)=>`${i*(600/Math.max(state.yields.length-1,1))},${200-(y.ben/maxCap)*170}`).join(' ')}"/>
-        </svg>
-      </div>
-      <div class="legend" style="margin-top:8px">
-        <div><span class="dot b"></span> Capital investi cumulé</div>
-        <div><span class="dot g"></span> Bénéfices cumulés</div>
-      </div>
+    <div class="card"><div class="section-title">Évolution</div>
+      <div class="chart-box"><svg class="line-chart" viewBox="0 0 600 200" preserveAspectRatio="none">
+        <polyline fill="none" stroke="var(--primary)" stroke-width="3" points="${state.yields.map((y,i)=>`${i*(600/Math.max(state.yields.length-1,1))},${200-(y.cap/maxCap)*170}`).join(' ')}"/>
+        <polyline fill="none" stroke="var(--ok)" stroke-width="3" points="${state.yields.map((y,i)=>`${i*(600/Math.max(state.yields.length-1,1))},${200-(y.ben/maxCap)*170}`).join(' ')}"/>
+      </svg></div>
     </div>
-    <div class="card">
-      <div class="section-title">Répartition des investissements</div>
+    <div class="card"><div class="section-title">Par catégorie</div>
       <div class="donut-wrap">
-        <div class="donut" style="background:conic-gradient(${catGrad||'#6b7c99 0 100%'})" data-center="${fmt(t.invested).replace(' '+state.settings.currency,'')}\nTotal investi"></div>
-        <div class="legend">
-          ${catEntries.map(([k,v],i)=>{const colors=['#6ea8fe','#79ddb0','#d9b66f','#6b7c99']; return `<div><span class="dot" style="background:${colors[i%colors.length]}"></span> ${k} ${Math.round(v/catTotal*100)}%</div>`}).join('')}
-        </div>
+        <div class="donut" style="background:conic-gradient(${catGrad||'#6b7c99 0 100%'})" data-center="Total"></div>
+        <div class="legend">${catEntries.map(([k,v],i)=>{const colors=['#6ea8fe','#79ddb0','#d9b66f','#6b7c99']; return `<div><span class="dot" style="background:${colors[i%colors.length]}"></span> ${k} ${Math.round(v/catTotal*100)}%</div>`}).join('')}</div>
       </div>
     </div>
   </div>
-  <div class="card">
-    <div class="section-title">Détail des investissements</div>
-    <div class="table-wrap"><table>
-      <thead><tr><th>Projet</th><th>Catégorie</th><th>Capital investi</th><th>Valeur actuelle</th><th>Bénéfices</th><th>Rendement</th><th>Statut</th></tr></thead>
-      <tbody>
-        ${state.projects.map(p=>{const r=p.invested?((p.benefit||0)/p.invested*100).toFixed(1):0; return `<tr>
-            <td><b>${p.name}</b></td><td><span class="badge badge-soft">${p.category||'—'}</span></td>
-            <td>${fmt(p.invested)}</td><td>${fmt(p.value||p.invested)}</td>
-            <td class="pos">${fmt(p.benefit||0)}</td><td class="pos">${r}%</td>
-            <td><span class="badge badge-ok">${p.status}</span></td></tr>`}).join('')}
-      </tbody>
-    </table></div>
+  <div class="card"><div class="section-title">Détail</div>
+    <div class="table-wrap"><table><thead><tr><th>Projet</th><th>Catégorie</th><th>Investi</th><th>Valeur</th><th>Bénéfice</th><th>%</th></tr></thead>
+      <tbody>${state.projects.map(p=>{const r=p.invested?((p.benefit||0)/p.invested*100).toFixed(1):0;
+        return `<tr><td><b>${p.name}</b></td><td>${p.category||'—'}</td><td>${fmt(p.invested)}</td><td>${fmt(p.value||p.invested)}</td><td class="pos">${fmt(p.benefit||0)}</td><td class="pos">${r}%</td></tr>`}).join('')}
+      </tbody></table></div>
     <div style="margin-top:12px"><button class="btn btn-primary" id="addProj">Ajouter un projet</button></div>
   </div>`;
-  $('#addProj').onclick=()=>{
-    if(!requireUnlock('ajouter un projet')) return;
+  $('#addProj').onclick=()=>{if(!requireUnlock('ajouter un projet')) return;
     openModal(`<h3>Nouveau projet</h3><div class="form-grid">
       <div class="field full"><label>Nom</label><input id="pName"></div>
       <div class="field"><label>Catégorie</label><input id="pCat" value="Commerce"></div>
-      <div class="field"><label>Capital investi</label><input id="pInv" type="number" value="1000000"></div>
-      <div class="field"><label>Valeur actuelle</label><input id="pVal" type="number" value="1000000"></div>
-      <div class="field"><label>Bénéfices</label><input id="pBen" type="number" value="0"></div>
+      <div class="field"><label>Capital</label><input id="pInv" type="number" value="1000000"></div>
     </div><div class="modal-actions"><button class="btn btn-light" data-close>Annuler</button><button class="btn btn-primary" id="saveP">Enregistrer</button></div>`,()=>{
-      $('#saveP').onclick=()=>{
-        state.projects.push({id:uid('PJ'),name:$('#pName').value.trim()||'Projet',category:$('#pCat').value,budget:Number($('#pInv').value)||0,invested:Number($('#pInv').value)||0,value:Number($('#pVal').value)||0,benefit:Number($('#pBen').value)||0,status:'Actif',risk:'Modéré',start:today()});
-        save('Projet ajouté'); closeModal(); setPage('projects');
-      };
+      $('#saveP').onclick=()=>{const inv=Number($('#pInv').value)||0;
+        state.projects.push({id:uid('PJ'),name:$('#pName').value.trim()||'Projet',category:$('#pCat').value,budget:inv,invested:inv,value:inv,benefit:0,status:'Actif',risk:'Modéré',start:today()});
+        save('Projet ajouté'); closeModal(); setPage('projects')};
     });
   };
 }
 
 function renderMembers(root){
-  root.innerHTML=`<div class="toolbar"><input class="search" id="q" placeholder="Rechercher..."><button class="btn btn-primary" id="addM">Ajouter un membre</button></div>
-  <div class="card"><div class="table-wrap"><table><thead><tr><th>Nom</th><th>Contact</th><th>Cotisation</th><th>Ordre tontine</th><th>Statut</th><th></th></tr></thead><tbody id="rows"></tbody></table></div></div>`;
+  root.innerHTML=`<div class="toolbar"><input class="search" id="q" placeholder="Rechercher..."><button class="btn btn-primary" id="addM">Ajouter</button></div>
+  <div class="card"><div class="table-wrap"><table><thead><tr><th>Nom</th><th>Contact</th><th>Cotisation</th><th>Ordre</th><th>Statut</th><th></th></tr></thead><tbody id="rows"></tbody></table></div></div>`;
   const draw=()=>{const q=($('#q').value||'').toLowerCase();
     $('#rows').innerHTML=state.members.filter(m=>!q||m.name.toLowerCase().includes(q)).map(m=>`<tr>
       <td><b>${m.name}</b></td><td>${m.email||''}<br><span class="muted">${m.phone||''}</span></td>
@@ -374,8 +340,8 @@ function renderMembers(root){
       <td><span class="badge badge-ok">${m.status}</span></td>
       <td><button class="btn btn-ghost" data-e="${m.id}">Modifier</button></td></tr>`).join('')};
   draw(); $('#q').oninput=draw;
-  $('#addM').onclick=()=>{if(!requireUnlock('ajouter un membre'))return; memberModal()};
-  root.onclick=e=>{const b=e.target.closest('[data-e]'); if(!b)return; if(!requireUnlock('modifier un membre'))return; memberModal(state.members.find(m=>m.id===b.dataset.e))};
+  $('#addM').onclick=()=>{if(!requireUnlock('ajouter'))return; memberModal()};
+  root.onclick=e=>{const b=e.target.closest('[data-e]'); if(!b)return; if(!requireUnlock('modifier'))return; memberModal(state.members.find(m=>m.id===b.dataset.e))};
 }
 function memberModal(m){
   const edit=!!m;
@@ -396,11 +362,11 @@ function memberModal(m){
 }
 
 function renderContributions(root){
-  root.innerHTML=`<div class="toolbar"><button class="btn btn-primary" id="addC">Ajouter une cotisation</button></div>
+  root.innerHTML=`<div class="toolbar"><button class="btn btn-primary" id="addC">Ajouter</button></div>
   <div class="card"><div class="table-wrap"><table><thead><tr><th>Réf</th><th>Membre</th><th>Montant</th><th>Date</th><th>Statut</th></tr></thead>
   <tbody>${state.contributions.map(c=>`<tr><td>${c.ref||c.id}</td><td>${memberName(c.memberId)}</td><td>${fmt(c.amount)}</td><td>${c.date}</td>
     <td><span class="badge ${c.status==='Payé'?'badge-ok':'badge-warn'}">${c.status}</span></td></tr>`).join('')}</tbody></table></div></div>`;
-  $('#addC').onclick=()=>{if(!requireUnlock('ajouter une cotisation')) return;
+  $('#addC').onclick=()=>{if(!requireUnlock('ajouter')) return;
     openModal(`<h3>Cotisation</h3><div class="form-grid">
       <div class="field"><label>Membre</label><select id="cM">${state.members.map(m=>`<option value="${m.id}">${m.name}</option>`).join('')}</select></div>
       <div class="field"><label>Montant</label><input id="cA" type="number" value="100000"></div>
@@ -414,27 +380,26 @@ function renderContributions(root){
 }
 
 function renderTransactions(root){
-  root.innerHTML=`<div class="toolbar"><button class="btn btn-primary" id="addT">Ajouter un mouvement</button></div>
+  root.innerHTML=`<div class="toolbar"><button class="btn btn-primary" id="addT">Ajouter</button></div>
   <div class="card"><div class="table-wrap"><table><thead><tr><th>Date</th><th>Type</th><th>Libellé</th><th>Montant</th></tr></thead>
   <tbody>${state.transactions.map(t=>`<tr><td>${t.date}</td><td>${t.type}</td><td>${t.label}</td>
     <td class="${t.type==='Entrée'?'pos':'neg'}">${t.type==='Entrée'?'+':'-'}${fmt(t.amount)}</td></tr>`).join('')}</tbody></table></div></div>`;
-  $('#addT').onclick=()=>{if(!requireUnlock('ajouter un mouvement')) return;
+  $('#addT').onclick=()=>{if(!requireUnlock('ajouter')) return;
     openModal(`<h3>Mouvement</h3><div class="form-grid">
       <div class="field"><label>Type</label><select id="tT"><option>Entrée</option><option>Sortie</option></select></div>
       <div class="field"><label>Montant</label><input id="tA" type="number" value="10000"></div>
       <div class="field full"><label>Libellé</label><input id="tL"></div>
       <div class="field"><label>Date</label><input id="tD" type="date" value="${today()}"></div>
-      <div class="field"><label>Catégorie</label><input id="tC" value="Divers"></div>
     </div><div class="modal-actions"><button class="btn btn-light" data-close>Annuler</button><button class="btn btn-primary" id="saveT">Enregistrer</button></div>`,()=>{
-      $('#saveT').onclick=()=>{state.transactions.push({id:uid('TX'),type:$('#tT').value,label:$('#tL').value||'Mouvement',amount:Number($('#tA').value)||0,date:$('#tD').value,category:$('#tC').value});
-        save('Mouvement enregistré'); closeModal(); setPage('transactions')};
+      $('#saveT').onclick=()=>{state.transactions.push({id:uid('TX'),type:$('#tT').value,label:$('#tL').value||'Mouvement',amount:Number($('#tA').value)||0,date:$('#tD').value,category:'Divers'});
+        save('Enregistré'); closeModal(); setPage('transactions')};
     });
   };
 }
 
 function renderFinance(root){
   const s=state.settings; const t=totals();
-  root.innerHTML=`<div class="notice">Somme des pourcentages doit rester à 100 % (actuellement ${s.redistribution+s.investment+s.treasury+s.fees} %).</div>
+  root.innerHTML=`<div class="notice">Somme des % doit rester à 100 % (actuellement ${s.redistribution+s.investment+s.treasury+s.fees} %).</div>
   <div class="grid-2">
     <div class="card"><div class="section-title">Répartition</div>
       <div class="donut-wrap">
@@ -446,24 +411,23 @@ function renderFinance(root){
           <div><span class="dot gr"></span> Frais ${s.fees}% — ${fmt(t.fees)}</div>
         </div>
       </div>
-      <div style="margin-top:14px"><button class="btn btn-primary" id="editPct">Modifier les pourcentages</button></div>
+      <div style="margin-top:14px"><button class="btn btn-primary" id="editPct">Modifier les %</button></div>
     </div>
     <div class="card"><div class="section-title">Objectif mensuel</div>
       <div class="stat-value" style="margin:12px 0">${fmt(s.monthlyGoal)}</div>
-      <p class="muted">Utilisé pour simuler la répartition.</p>
     </div>
   </div>`;
-  $('#editPct').onclick=()=>{if(!requireUnlock('modifier les pourcentages')) return;
+  $('#editPct').onclick=()=>{if(!requireUnlock('modifier')) return;
     openModal(`<h3>Pourcentages</h3><div class="form-grid">
       <div class="field"><label>Redistribution %</label><input id="r" type="number" value="${s.redistribution}"></div>
       <div class="field"><label>Investissement %</label><input id="i" type="number" value="${s.investment}"></div>
       <div class="field"><label>Trésor %</label><input id="t" type="number" value="${s.treasury}"></div>
       <div class="field"><label>Frais %</label><input id="f" type="number" value="${s.fees}"></div>
-      <div class="field full"><label>Objectif mensuel</label><input id="g" type="number" value="${s.monthlyGoal}"></div>
+      <div class="field full"><label>Objectif</label><input id="g" type="number" value="${s.monthlyGoal}"></div>
     </div><div class="modal-actions"><button class="btn btn-light" data-close>Annuler</button><button class="btn btn-primary" id="saveF">Enregistrer</button></div>`,()=>{
       $('#saveF').onclick=()=>{state.settings.redistribution=Number($('#r').value)||0; state.settings.investment=Number($('#i').value)||0;
         state.settings.treasury=Number($('#t').value)||0; state.settings.fees=Number($('#f').value)||0; state.settings.monthlyGoal=Number($('#g').value)||0;
-        save('Répartition mise à jour'); closeModal(); setPage('finance')};
+        save('Mis à jour'); closeModal(); setPage('finance')};
     });
   };
 }
@@ -471,43 +435,42 @@ function renderFinance(root){
 function renderPayments(root){
   const p=state.payments;
   const card=(title,num,own)=>`<div class="pay-card"><h3>${title}</h3><div class="num">${num||'Non renseigné'}</div><div class="owner">${own||'Titulaire non défini'}</div></div>`;
-  root.innerHTML=`<div class="notice">Affichez vos numéros pour recevoir les cotisations (pas de paiement automatique en ligne).</div>
-  <div class="toolbar"><button class="btn btn-primary" id="editPay">Configurer mes moyens de paiement</button></div>
+  root.innerHTML=`<div class="notice">Coordonnées de ce collectif uniquement.</div>
+  <div class="toolbar"><button class="btn btn-primary" id="editPay">Configurer</button></div>
   <div class="pay-grid">
     ${card('Mobile Money (MTN)',p.momo?.number,p.momo?.owner)}
     ${card('Airtel Money',p.airtel?.number,p.airtel?.owner)}
     ${card('Orange Money',p.orange?.number,p.orange?.owner)}
     ${card('Visa / Banque',p.visa?.number,(p.visa?.owner||'')+(p.visa?.bank?' · '+p.visa.bank:''))}
   </div>`;
-  $('#editPay').onclick=()=>{if(!requireUnlock('configurer les paiements')) return;
-    openModal(`<h3>Moyens de paiement</h3><div class="form-grid">
-      <div class="field full"><label>MoMo — numéro</label><input id="mn" value="${p.momo?.number||''}"></div>
-      <div class="field full"><label>MoMo — titulaire</label><input id="mo" value="${p.momo?.owner||''}"></div>
-      <div class="field full"><label>Airtel — numéro</label><input id="an" value="${p.airtel?.number||''}"></div>
-      <div class="field full"><label>Airtel — titulaire</label><input id="ao" value="${p.airtel?.owner||''}"></div>
-      <div class="field full"><label>Orange — numéro</label><input id="on" value="${p.orange?.number||''}"></div>
-      <div class="field full"><label>Orange — titulaire</label><input id="oo" value="${p.orange?.owner||''}"></div>
+  $('#editPay').onclick=()=>{if(!requireUnlock('configurer')) return;
+    openModal(`<h3>Paiements</h3><div class="form-grid">
+      <div class="field full"><label>MoMo numéro</label><input id="mn" value="${p.momo?.number||''}"></div>
+      <div class="field full"><label>MoMo titulaire</label><input id="mo" value="${p.momo?.owner||''}"></div>
+      <div class="field full"><label>Airtel numéro</label><input id="an" value="${p.airtel?.number||''}"></div>
+      <div class="field full"><label>Airtel titulaire</label><input id="ao" value="${p.airtel?.owner||''}"></div>
+      <div class="field full"><label>Orange numéro</label><input id="on" value="${p.orange?.number||''}"></div>
+      <div class="field full"><label>Orange titulaire</label><input id="oo" value="${p.orange?.owner||''}"></div>
       <div class="field full"><label>Visa / compte</label><input id="vn" value="${p.visa?.number||''}"></div>
       <div class="field"><label>Titulaire</label><input id="vo" value="${p.visa?.owner||''}"></div>
       <div class="field"><label>Banque</label><input id="vb" value="${p.visa?.bank||''}"></div>
     </div><div class="modal-actions"><button class="btn btn-light" data-close>Annuler</button><button class="btn btn-primary" id="saveP">Enregistrer</button></div>`,()=>{
       $('#saveP').onclick=()=>{state.payments={momo:{number:$('#mn').value.trim(),owner:$('#mo').value.trim()},airtel:{number:$('#an').value.trim(),owner:$('#ao').value.trim()},orange:{number:$('#on').value.trim(),owner:$('#oo').value.trim()},visa:{number:$('#vn').value.trim(),owner:$('#vo').value.trim(),bank:$('#vb').value.trim()}};
-        save('Paiements enregistrés'); closeModal(); setPage('payments')};
+        save('Enregistré'); closeModal(); setPage('payments')};
     });
   };
 }
 
 function renderReports(root){
   const t=totals();
-  root.innerHTML=`<div class="card"><div class="section-title">Synthèse</div>
+  root.innerHTML=`<div class="card"><div class="section-title">Synthèse — ${state.settings.name||'Collectif'}</div>
     <div class="info-list">
       <div class="row"><span>Membres</span><b>${state.members.length}</b></div>
       <div class="row"><span>Cotisations payées</span><b>${fmt(t.paid)}</b></div>
       <div class="row"><span>Capital investi</span><b>${fmt(t.invested)}</b></div>
       <div class="row"><span>Bénéfices</span><b>${fmt(t.benefit)}</b></div>
-      <div class="row"><span>Solde trésorerie</span><b>${fmt(t.bal)}</b></div>
-    </div>
-    <div style="margin-top:14px"><button class="btn btn-primary" onclick="window.print()">Imprimer / PDF</button></div></div>`;
+      <div class="row"><span>Solde</span><b>${fmt(t.bal)}</b></div>
+    </div></div>`;
 }
 
 function renderSettings(root){
@@ -516,14 +479,12 @@ function renderSettings(root){
   <div class="card" style="margin-bottom:14px">
     <div class="section-title">Couleur d'accent</div>
     <div class="themes" id="themes">
-      ${Object.keys(themes).map(k=>`<button type="button" class="theme-swatch ${s.theme===k?'active':''}" data-theme="${k}" style="background:${themes[k].primary}" title="${k}"></button>`).join('')}
+      ${Object.keys(themes).map(k=>`<button type="button" class="theme-swatch ${s.theme===k?'active':''}" data-theme="${k}" style="background:${themes[k].primary}"></button>`).join('')}
     </div>
-    <p class="muted" style="margin-top:10px">Accent type KALLA Finance (or, bleu, vert, violet, corail).</p>
     <div class="section-title" style="margin-top:18px">Fond de page</div>
     <div class="bg-themes" id="bgThemes">
-      ${Object.entries(bgThemes).map(([k,v])=>`<button type="button" class="bg-swatch ${(s.bg||'kalla')===k?'active':''}" data-bg="${k}" style="background:${v}" title="${k}"></button>`).join('')}
+      ${Object.entries(bgThemes).map(([k,v])=>`<button type="button" class="bg-swatch ${(s.bg||'kalla')===k?'active':''}" data-bg="${k}" style="background:${v}"></button>`).join('')}
     </div>
-    <p class="muted" style="margin-top:10px">Kalla (défaut), midnight, charcoal, deep navy, encre, ou clair.</p>
   </div>
   <div class="card">
     <div class="form-grid">
@@ -532,16 +493,14 @@ function renderSettings(root){
     </div>
     <div class="modal-actions" style="justify-content:flex-start">
       <button class="btn btn-primary" id="saveS" ${unlocked?'':'disabled'}>Enregistrer</button>
-      <button class="btn btn-light" id="exp">Exporter JSON</button>
-      <button class="btn btn-light" id="imp">Importer JSON</button>
+      <button class="btn btn-light" id="exp">Exporter</button>
       <button class="btn btn-danger" id="lock">Verrouiller</button>
     </div>
   </div>`;
-  $$('#themes [data-theme]').forEach(b=>{b.onclick=()=>{if(!requireUnlock('changer le thème')) return; state.settings.theme=b.dataset.theme; applyTheme(); save('Thème appliqué'); setPage('settings')}});
-  $$('#bgThemes [data-bg]').forEach(b=>{b.onclick=()=>{if(!requireUnlock('changer le fond')) return; state.settings.bg=b.dataset.bg; applyTheme(); save('Fond appliqué'); setPage('settings')}});
-  $('#saveS').onclick=()=>{if(!requireUnlock('modifier les paramètres')) return; state.settings.name=$('#sName').value.trim()||state.settings.name; state.settings.currency=$('#sCur').value.trim()||'XAF'; save('Paramètres enregistrés'); updateLockUI(); setPage('settings')};
-  $('#exp').onclick=()=>{const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='collective-backup.json';a.click()};
-  $('#imp').onclick=()=>{if(!requireUnlock('importer'))return;$('#importFile').click()};
+  $$('#themes [data-theme]').forEach(b=>{b.onclick=()=>{if(!requireUnlock('thème')) return; state.settings.theme=b.dataset.theme; applyTheme(); save('Thème'); setPage('settings')}});
+  $$('#bgThemes [data-bg]').forEach(b=>{b.onclick=()=>{if(!requireUnlock('fond')) return; state.settings.bg=b.dataset.bg; applyTheme(); save('Fond'); setPage('settings')}});
+  $('#saveS').onclick=()=>{if(!requireUnlock('paramètres')) return; state.settings.name=$('#sName').value.trim()||state.settings.name; state.settings.currency=$('#sCur').value.trim()||'XAF'; save('OK'); updateLockUI(); setPage('settings')};
+  $('#exp').onclick=()=>{const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='collective-'+COL_ID+'.json';a.click()};
   $('#lock').onclick=()=>{setUnlock(false);toast('Verrouillé')};
 }
 
@@ -555,8 +514,8 @@ function render(){
   setPage('dashboard');
 }
 
-$('#exportAll').onclick=()=>{const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='collective-backup.json';a.click();toast('Export prêt')};
-$('#importFile').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{state=JSON.parse(r.result);if(!state.payments)state.payments=structuredClone(initial.payments);if(!state.settings)state.settings=structuredClone(initial.settings);save('Import OK');setPage('dashboard')}catch(err){toast('Fichier invalide')}};r.readAsText(f);e.target.value=''};
+$('#exportAll').onclick=()=>{const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='collective-'+COL_ID+'.json';a.click();toast('Export')};
+$('#importFile').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{state=JSON.parse(r.result);save('Import OK');setPage('dashboard')}catch(err){toast('Fichier invalide')}};r.readAsText(f);e.target.value=''};
 $('#toggleLockBtn').onclick=()=>{if(unlocked){setUnlock(false);toast('Verrouillé')}else openPasswordModal('déverrouiller')};
 $('#nav').addEventListener('click',e=>{const b=e.target.closest('[data-page]');if(b) setPage(b.dataset.page)});
 render();
