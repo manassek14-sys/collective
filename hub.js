@@ -1,4 +1,5 @@
 const HUB_KEY = 'collective_hub_v1';
+const CURRENCIES = ['XAF','EUR','USD'];
 
 function loadHub(){
   try{
@@ -59,7 +60,7 @@ function openModal(){
         <h3>Nouveau collectif</h3>
         <div class="field"><label>Nom</label><input id="nName" placeholder="Ex. Collectif Quartier Nord"></div>
         <div class="field"><label>Description</label><textarea id="nDesc" rows="2" placeholder="Objectif du collectif"></textarea></div>
-        <div class="field"><label>Devise</label><input id="nCur" value="XAF"></div>
+        <div class="field"><label>Devise</label><select id="nCur"><option value="XAF">XAF</option><option value="EUR">EUR</option><option value="USD">USD</option></select></div>
         <div class="modal-actions">
           <button class="btn ghost" type="button" data-close>Annuler</button>
           <button class="btn primary" type="button" id="nSave">Créer</button>
