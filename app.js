@@ -3,15 +3,23 @@ const PASS_KEY='collective_v3_unlocked';
 const ADMIN_PASS='Azerty1234@idiot';
 
 const themes={
-  gold:{primary:'#c9a76a',soft:'rgba(201,167,106,.14)',sidebar:'#0d1524',sidebar2:'#090e18',text:'#8a6b2e'},
-  blue:{primary:'#3b6fd9',soft:'rgba(59,111,217,.12)',sidebar:'#0d1524',sidebar2:'#090e18',text:'#2c5282'},
-  green:{primary:'#2f9e7a',soft:'rgba(47,158,122,.12)',sidebar:'#0d1524',sidebar2:'#090e18',text:'#1f6b52'},
-  slate:{primary:'#64748b',soft:'rgba(100,116,139,.14)',sidebar:'#0d1524',sidebar2:'#090e18',text:'#475569'}
+  gold:{primary:'#d9b66f',soft:'rgba(217,182,111,.16)',sidebar:'#0b1221',sidebar2:'#0a1020',text:'#e8d5a8'},
+  blue:{primary:'#6ea8fe',soft:'rgba(110,168,254,.16)',sidebar:'#0b1221',sidebar2:'#0a1020',text:'#a5c8ff'},
+  green:{primary:'#79ddb0',soft:'rgba(121,221,176,.14)',sidebar:'#0b1221',sidebar2:'#0a1020',text:'#9aebc8'},
+  violet:{primary:'#b197fc',soft:'rgba(177,151,252,.16)',sidebar:'#0b1221',sidebar2:'#0a1020',text:'#d0bfff'},
+  coral:{primary:'#ffa8a8',soft:'rgba(255,168,168,.14)',sidebar:'#0b1221',sidebar2:'#0a1020',text:'#ffc9c9'}
 };
-const bgThemes={ white:'#ffffff', soft:'#f7f5f0', cool:'#f4f7fc', warm:'#faf6ef', mist:'#f1f5f9' };
+const bgThemes={
+  kalla:'#0a1020',
+  midnight:'#060a14',
+  charcoal:'#0f1419',
+  deepnavy:'#0a1628',
+  ink:'#050508',
+  softlight:'#f4f6fc'
+};
 
 const initial={
-  settings:{name:'Collectif de gestion',currency:'XAF',redistribution:55,investment:25,treasury:15,fees:5,monthlyGoal:2340000,theme:'gold',bg:'soft',monthLabel:'Mai 2026'},
+  settings:{name:'Collectif de gestion',currency:'XAF',redistribution:55,investment:25,treasury:15,fees:5,monthlyGoal:2340000,theme:'gold',bg:'kalla',monthLabel:'Mai 2026'},
   payments:{momo:{number:'',owner:''},airtel:{number:'',owner:''},orange:{number:'',owner:''},visa:{number:'',owner:'',bank:''}},
   members:[
     {id:'MB-001',name:'Mamadou Diallo',email:'mamadou@example.test',phone:'+242 06 000 01',joined:'2026-01-12',contribution:100000,status:'Actif',order:1},
@@ -53,7 +61,7 @@ function load(){
     const d=JSON.parse(raw);
     if(!d.payments) d.payments=structuredClone(initial.payments);
     if(!d.settings) d.settings=structuredClone(initial.settings);
-    if(!d.settings.bg) d.settings.bg='soft';
+    if(!d.settings.bg) d.settings.bg='kalla';
     if(!d.yields) d.yields=structuredClone(initial.yields);
     return d;
   }catch(e){return structuredClone(initial)}
@@ -75,9 +83,17 @@ function applyTheme(){
   r.setProperty('--primary-text',t.text||t.primary);
   r.setProperty('--sidebar',t.sidebar);
   r.setProperty('--sidebar-2',t.sidebar2);
-  const bg=bgThemes[state.settings.bg]||bgThemes.soft;
+  const bgKey=state.settings.bg||'kalla';
+  const bg=bgThemes[bgKey]||bgThemes.kalla;
   r.setProperty('--bg',bg);
-  r.setProperty('--card','#ffffff');
+  const light=bgKey==='softlight';
+  r.setProperty('--card', light ? '#ffffff' : '#121d31');
+  r.setProperty('--text', light ? '#172338' : '#f4f6fc');
+  r.setProperty('--muted', light ? '#6b7a99' : '#9fadc3');
+  r.setProperty('--line', light ? '#e6ebf5' : '#2a3a55');
+  document.body.style.background = light
+    ? bg
+    : 'radial-gradient(ellipse at top right,#182743 0,transparent 42%),'+bg;
 }
 
 function requireUnlock(label){
@@ -140,7 +156,6 @@ function totals(){
   const benefit=state.projects.reduce((a,p)=>a+(p.benefit||0),0);
   return {paid,monthTotal,red,inv,tre,fees,bal,invested,value,benefit};
 }
-
 function donutCSS(s){
   const a=s.redistribution,b=s.investment,c=s.treasury;
   return `--p1:${a}%;--p2:${a+b}%;--p3:${a+b+c}%`;
@@ -286,8 +301,7 @@ function renderProjects(root){
   const catEntries=Object.entries(cats);
   const catTotal=catEntries.reduce((a,[,v])=>a+v,0)||1;
   let acc=0;
-  const catGrad=catEntries.map(([,v],i)=>{const colors=['#4775cf','#21866b','#c9a76a','#94a3b8']; const start=acc; acc+=v/catTotal*100; return `${colors[i%colors.length]} ${start}% ${acc}%`}).join(',');
-
+  const catGrad=catEntries.map(([,v],i)=>{const colors=['#6ea8fe','#79ddb0','#d9b66f','#6b7c99']; const start=acc; acc+=v/catTotal*100; return `${colors[i%colors.length]} ${start}% ${acc}%`}).join(',');
   root.innerHTML=`
   <div class="stats">
     <div class="card"><div class="stat-label">Capital investi total</div><div class="stat-value">${fmt(t.invested)}</div><div class="stat-sub">Depuis le début</div></div>
@@ -300,10 +314,8 @@ function renderProjects(root){
       <div class="section-title">Évolution des rendements</div>
       <div class="chart-box">
         <svg class="line-chart" viewBox="0 0 600 200" preserveAspectRatio="none">
-          <polyline fill="none" stroke="var(--primary)" stroke-width="3"
-            points="${state.yields.map((y,i)=>`${i*(600/Math.max(state.yields.length-1,1))},${200-(y.cap/maxCap)*170}`).join(' ')}"/>
-          <polyline fill="none" stroke="var(--ok)" stroke-width="3"
-            points="${state.yields.map((y,i)=>`${i*(600/Math.max(state.yields.length-1,1))},${200-(y.ben/maxCap)*170}`).join(' ')}"/>
+          <polyline fill="none" stroke="var(--primary)" stroke-width="3" points="${state.yields.map((y,i)=>`${i*(600/Math.max(state.yields.length-1,1))},${200-(y.cap/maxCap)*170}`).join(' ')}"/>
+          <polyline fill="none" stroke="var(--ok)" stroke-width="3" points="${state.yields.map((y,i)=>`${i*(600/Math.max(state.yields.length-1,1))},${200-(y.ben/maxCap)*170}`).join(' ')}"/>
         </svg>
       </div>
       <div class="legend" style="margin-top:8px">
@@ -314,9 +326,9 @@ function renderProjects(root){
     <div class="card">
       <div class="section-title">Répartition des investissements</div>
       <div class="donut-wrap">
-        <div class="donut" style="background:conic-gradient(${catGrad||'#ced4da 0 100%'})" data-center="${fmt(t.invested).replace(' '+state.settings.currency,'')}\nTotal investi"></div>
+        <div class="donut" style="background:conic-gradient(${catGrad||'#6b7c99 0 100%'})" data-center="${fmt(t.invested).replace(' '+state.settings.currency,'')}\nTotal investi"></div>
         <div class="legend">
-          ${catEntries.map(([k,v],i)=>{const colors=['#4775cf','#21866b','#c9a76a','#94a3b8']; return `<div><span class="dot" style="background:${colors[i%colors.length]}"></span> ${k} ${Math.round(v/catTotal*100)}%</div>`}).join('')}
+          ${catEntries.map(([k,v],i)=>{const colors=['#6ea8fe','#79ddb0','#d9b66f','#6b7c99']; return `<div><span class="dot" style="background:${colors[i%colors.length]}"></span> ${k} ${Math.round(v/catTotal*100)}%</div>`}).join('')}
         </div>
       </div>
     </div>
@@ -506,12 +518,12 @@ function renderSettings(root){
     <div class="themes" id="themes">
       ${Object.keys(themes).map(k=>`<button type="button" class="theme-swatch ${s.theme===k?'active':''}" data-theme="${k}" style="background:${themes[k].primary}" title="${k}"></button>`).join('')}
     </div>
-    <p class="muted" style="margin-top:10px">Une seule teinte pour boutons, badges et graphiques.</p>
+    <p class="muted" style="margin-top:10px">Accent type KALLA Finance (or, bleu, vert, violet, corail).</p>
     <div class="section-title" style="margin-top:18px">Fond de page</div>
     <div class="bg-themes" id="bgThemes">
-      ${Object.entries(bgThemes).map(([k,v])=>`<button type="button" class="bg-swatch ${(s.bg||'soft')===k?'active':''}" data-bg="${k}" style="background:${v}" title="${k}"></button>`).join('')}
+      ${Object.entries(bgThemes).map(([k,v])=>`<button type="button" class="bg-swatch ${(s.bg||'kalla')===k?'active':''}" data-bg="${k}" style="background:${v}" title="${k}"></button>`).join('')}
     </div>
-    <p class="muted" style="margin-top:10px">Blanc, ivoire, froid, chaud ou gris léger.</p>
+    <p class="muted" style="margin-top:10px">Kalla (défaut), midnight, charcoal, deep navy, encre, ou clair.</p>
   </div>
   <div class="card">
     <div class="form-grid">
