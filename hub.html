@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#0a1020">
+  <title>COLLECTIVE — Mes collectifs</title>
+  <link rel="stylesheet" href="hub.css">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header class="top">
+    <a class="brand" href="index.html">
+      <span class="mark">C</span>
+      <span>
+        <b>COLLECTIVE</b>
+        <small>Mes espaces</small>
+      </span>
+    </a>
+    <div class="actions">
+      <a class="btn ghost" href="index.html">Accueil site</a>
+      <button class="btn primary" id="btnAdd" type="button">Nouveau collectif</button>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="head">
+      <div>
+        <p class="eyebrow">Espace multi-collectifs</p>
+        <h1>Choisissez un collectif</h1>
+        <p class="lead">Chaque collectif a son propre tableau de bord, membres, tontine et paiements — sans mélange.</p>
+      </div>
+    </div>
+    <div class="grid" id="grid"></div>
+    <p class="empty" id="empty" hidden>Aucun collectif pour l’instant. Créez le premier.</p>
+  </main>
+
+  <div id="modalRoot"></div>
+  <div class="toast" id="toast"></div>
+  <script src="hub.js"></script>
+</body>
+</html>
